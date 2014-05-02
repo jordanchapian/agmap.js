@@ -1,0 +1,1 @@
+Granular data structure for capturing and aggregating data based on any number of time windows.
