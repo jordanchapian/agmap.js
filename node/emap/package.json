@@ -1,0 +1,20 @@
+{
+  "name": "EMap",
+  "version": "0.0.1",
+  "description": "Expiring Map For Javascript",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://jchapian@bitbucket.org/jchapian/emap.git"
+  },
+  "keywords": [
+    "Expiring",
+    "Map",
+    "Aggregation"
+  ],
+  "author": "Jordan Chapian <jchapian@pyaanalytics.com> (http://www.algorithmanomaly.com/)",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://bitbucket.org/jchapian/emap/issues"
+  }
+}

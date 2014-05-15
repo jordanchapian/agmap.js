@@ -9,7 +9,7 @@ PYA Analytics    | http://www.pyaanalytics.com
 //TODO: Write a detector plugin method which will allow the programmer to recieve the data that is changing, and make decisions about it, and mark values on the object
 
 //TODO: Write middleware, beforeware, afterware
-(function(){
+
 var strKey = {ms:1,s:(1*1000), m:(60*1000), h:(3600*1000), d:(86400*1000), w:(604800*1000), infinity:9007199254740992}
 var toS = function(str){
     var q = /(\d+)(.*)/.exec(str);
@@ -271,7 +271,7 @@ Subscriber.fn.report = function(changes){
 //think of the map as an interface into multiple self sustaining granularities
 //by providing batch operations
 
-var EMap = window.EMap = function(granularity, aggregate) {
+var EMap = function(granularity, aggregate) {
     
     //init instance objects
     this.grain = {};
@@ -284,13 +284,12 @@ var EMap = window.EMap = function(granularity, aggregate) {
 
 };
 EMap.fn = EMap.prototype;
-EMap.fn.version = '0.0.1';
 
 //accepts an emap.plugin
 EMap.fn.arm = function(){
     //apply all supplied plugins to all granularities
     var arguments = Array.prototype.slice.call(arguments);
-    for(var i=0; i<arguments.length; i++){
+    for(var i=0; i < arguments.length; i++){
 
         var plugin = arguments[i];
         for(var grain in this.grain){
@@ -335,5 +334,11 @@ EMap.plugin = function(name, interface, args){
     }
 }
 
-
-})();
+module.exports = {
+    map : function(granularity, aggregate){
+        return new EMap(granularity, aggregate);
+    },
+    plugin:function(name, interface, args){
+        return new EMap.plugin(name, interface, args);
+    }
+}

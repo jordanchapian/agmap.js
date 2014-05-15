@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>EMap Test</title>
+</head>
+<body>
+
+</body>
+<script type='text/javascript' src='../src/EMap.js'></script>
+
+<script>
+var map = new EMap({
+	'15s':'1m',
+	'30s':'2m',
+	'1m':'4m',
+	'1infinity':'0ms'
+},
+{
+	count:function(oldD,newD){return oldD+newD;}
+});	
+
+var LogPlugin = new EMap.plugin('Log', function(args){
+	var grain;
+
+	this.init = function(g){
+		grain = g;
+	}
+
+	this.handleUpdate = this.handleNew = function(record,grain){
+		record.logCount =  Math.log(record.count) / Math.LN10;
+	}
+});
+
+var DecayPlugin = new EMap.plugin('Decay', function(args){
+	var grain;
+
+	this.init = function(g){
+		grain = g;
+	}
+
+	this.handleExpire = this.handleRequest = function(record,grain){
+		record.decayCount = record.count * Math.pow( (1-.001) , (record.timeElapsed()/1000) );
+		record.decayLogCount = Math.log(record.decayCount) / Math.LN10;
+	}
+});
+
+var ActiveMaxPlugin = new EMap.plugin('Max', function(args){
+
+	var currentMax;
+	var pastMax = {};
+	var grain;
+	
+	this.init = function(g){
+		grain = g;
+	}
+
+	this.handleUpdate = this.handleNew = function(record, grain){
+		if(!currentMax)currentMax = record;
+		else if(currentMax.count < record.count){
+			pastMax[currentMax.key] = currentMax;
+			currentMax = record;
+		}
+	}
+
+	this.handleExpire = function(record, grain){
+		//we'll have to search for a non expired max (pure overhead here)
+		if(currentMax.key == record.key){
+			currentMax = undefined;
+			for(var key in pastMax){
+				if(!currentMax || (currentMax.count < pastMax[key].count))currentMax = pastMax[key];
+			}
+		}
+		else if(pastMax[record.key])delete pastMax[record.key];
+	}
+
+	this.exports = {
+		getActiveMax:function(){
+			grain.sweepActive();
+			return currentMax;
+		}
+	}
+});
+
+map.arm(ActiveMaxPlugin, LogPlugin, DecayPlugin);
+</script>
+</html>
